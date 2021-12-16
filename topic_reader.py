@@ -127,11 +127,23 @@ def read_length(word_count, image_count, code_block_count, read_speed):
 
     return total_read_time + total_image_time + total_code_block_time
 
-def directoryProcess(path):
+def directory_process(path):
 
     # Go through each course dir (and only course dir)
     dir_path_arr = glob.glob(path+'*/', recursive=False)
     course_dir_paths = [i for i in dir_path_arr if 'Reader' not in i]
+
+    def get_est_time(section_file, topic_name, read_speed):
+        exact_time = round(counter(section_file, topic_name, read_speed))
+
+        if exact_time < 5:
+            est_time_str = "5"
+        else:
+            low = exact_time//5
+            est_time_str = str(low) + "-" + str(low + 5)
+
+
+        return est_time_str
 
     for path in course_dir_paths:
 
@@ -164,13 +176,13 @@ def directoryProcess(path):
                     # get count for each type of file under this subtopic
                     for section_file in sections:
                         if lecture_pattern in section_file:
-                            time = round(counter(section_file, topic_name, lecture_read_speed))
+                            time = get_est_time(section_file, topic_name, lecture_read_speed)
                             print(stub + "Lecture\t"+str(time))
                         elif ge_pattern in section_file or practice_pattern in section_file:
-                            time = round(counter(section_file, topic_name, ge_read_speed))
+                            time = get_est_time(section_file, topic_name, ge_read_speed)
                             print(stub + "GE\t"+str(time))
                         elif mc_pattern in section_file or quiz_pattern in section_file:
-                            time = round(counter(section_file, topic_name, quiz_read_speed))
+                            time = get_est_time(section_file, topic_name, quiz_read_speed)
                             print(stub + "Quiz\t"+str(time))
 
 
@@ -200,6 +212,6 @@ if __name__ == '__main__':
         if (os.path.isfile(file_input)): 
             counter(file_input, "unknown topic", 0)
         elif (os.path.isdir(file_input)):
-            directoryProcess(file_input)
+            directory_process(file_input)
     except Exception as e: 
         print(e)
